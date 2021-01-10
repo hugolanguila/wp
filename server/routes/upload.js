@@ -10,119 +10,64 @@ const { encrypt, decrypt } = require('../helpers/cipher');
 // default options
 app.use(fileUpload());
 
-app.put('/encrypt', (req, res) => {
-    if (!req.files) {
-        return res.status(400)
-            .json({
-                ok: false,
-                err: {
-                    message: 'No se ha seleccionado ningún archivo'
-                }
-            });
-    }
+app.post('/encrypt', (req, res)=>{
+	let body = req.body;
+	let text = body.text;
+	
+	if( !( text.length > 1 )){
+		return res.status(400).json({
+			ok: false,
+			err: {
+				message: 'No enviaste texto para cifrar'
+			}
+		});
+	}
 
-    let archivo = req.files.file;
-    let nombreCortado = archivo.name.split('.');
-    let extension = nombreCortado[nombreCortado.length - 1];
-
-    // Extensiones permitidas
-    let extensionesValidas = ['txt'];
-    if (extensionesValidas.indexOf(extension) < 0) {
-        return res.status(400).json({
-            ok: false,
-            err: {
-                message: 'Las extensiones permitidas son ' + extensionesValidas.join(', '),
-                ext: extension
-            }
-        })
-    }
-
-	let data = archivo.data.toString('utf8');
-	encrypt( data )
+	encrypt( text )
 		.then( encData => {
 			res.json({
 				ok: true,
-				encText: encData
-			});			
+				encText: encData.toString('base64')
+			});
 		}).catch( err => {
 			return res.status(500).json({
 				ok: false,
-				message: 'Error al cifrar archivo', 
-				err
+				err:{
+					message: 'Error al cifrar texto',
+					desc: err
+				}
 			});
 		});
-
 });
 
-app.put('/decrypt', (req, res) => {
-    if (!req.files) {
-        return res.status(400)
-            .json({
-                ok: false,
-                err: {
-                    message: 'No se ha seleccionado ningún archivo'
-                }
-            });
-    }
+app.post('/decrypt', (req, res)=>{
+	let body = req.body;
+	let text = body.text;
+	
+	if( !( text.length > 1 )){
+		return res.status(400).json({
+			ok: false,
+			err: {
+				message: 'No enviaste texto para cifrar'
+			}
+		});
+	}
 
-    let archivo = req.files.file;
-    let nombreCortado = archivo.name.split('.');
-    let extension = nombreCortado[nombreCortado.length - 1];
-
-    // Extensiones permitidas
-    let extensionesValidas = ['txt'];
-    if (extensionesValidas.indexOf(extension) < 0) {
-        return res.status(400).json({
-            ok: false,
-            err: {
-                message: 'Las extensiones permitidas son ' + extensionesValidas.join(', '),
-                ext: extension
-            }
-        })
-    }
-
-
-	let data = archivo.data.toString('base64');
-	decrypt( data )
+	decrypt( text )
 		.then( decData => {
-			let nombre = nombreCortado[0] + '_D.txt';
-			let rutaArchivo = path.resolve(__dirname, `../../uploads/${ nombre }`);
-
-			fs.appendFile( rutaArchivo, decData, { encoding: 'utf8' }, (err)=>{
-				if( err ){
-					return res.status(500).json({
-						ok: false,
-						message: 'Error al escribir archivo',
-						err
-					});
-				}
-				if( fs.existsSync( rutaArchivo ) ){
-					return res.sendFile( rutaArchivo, (err)=>{
-						borrarArchivo( nombre );
-					});
-				}
-
-				return res.json({
-					ok: true, 
-					decText: decData
-				});
+			res.json({
+				ok: true,
+				text: decData.toString('base64')
 			});
 		}).catch( err => {
 			return res.status(500).json({
 				ok: false,
-				message: 'Error al cifrar archivo', 
-				err
+				err:{
+					message: 'Error al decifrar texto',
+					desc: err
+				}
 			});
 		});
-
 });
-
-
-function borrarArchivo ( nombre ) {
-    let rutaArchivo = path.resolve(__dirname, `../../uploads/${ nombre }`);
-    if (fs.existsSync( rutaArchivo )) {
-        fs.unlinkSync( rutaArchivo );
-    }
-}
 
 module.exports = app;
