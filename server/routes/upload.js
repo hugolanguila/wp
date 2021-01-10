@@ -40,43 +40,10 @@ app.put('/encrypt', (req, res) => {
 	let data = archivo.data.toString('utf8');
 	encrypt( data )
 		.then( encData => {
-			let nombre = nombreCortado[0] + '_C.txt';
-			let rutaArchivo = path.resolve(__dirname, `../../uploads/${ nombre }`);
-			fs.open( rutaArchivo, ( err, file ) =>{
-			
-				if( err ){
-					if( err ){
-						return res.status(500).json({
-							ok: false,
-							message: 'Error al crear archivo',
-							err
-						});
-					}
-				}
-
-				fs.appendFile( rutaArchivo, encData, { encoding: 'base64' }, (err)=>{
-					if( err ){
-						return res.status(500).json({
-							ok: false,
-							message: 'Error al escribir archivo',
-							err
-						});
-					}
-				
-					if( fs.existsSync( rutaArchivo ) ){
-						console.log('exists');
-						return res.sendFile( rutaArchivo, (err)=>{
-							borrarArchivo( nombre );
-						});
-					}else{
-						res.json({
-							ok: true, 
-							encText: encData
-						});
-					}
-				});
-			});
-			
+			res.json({
+				ok: true,
+				encText: encData
+			});			
 		}).catch( err => {
 			return res.status(500).json({
 				ok: false,
