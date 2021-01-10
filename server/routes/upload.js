@@ -53,15 +53,16 @@ app.put('/encrypt', (req, res) => {
 				}
 			
 				if( fs.existsSync( rutaArchivo ) ){
+					console.log('exists');
 					return res.sendFile( rutaArchivo, (err)=>{
 						borrarArchivo( nombre );
 					});
+				}else{
+					res.json({
+						ok: true, 
+						encText: encData
+					});
 				}
-
-				return res.json({
-					ok: true, 
-					encText: encData
-				});
 			});
 		}).catch( err => {
 			return res.status(500).json({
