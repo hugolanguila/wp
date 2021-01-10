@@ -6,7 +6,7 @@ app.get('/key', (req, res)=>{
 	let bytes = crypto.randomBytes( 16 );
 	res.json({
 		ok: true,
-		key: process.env.PUBKEY
+		key: process.env.PUBLICKEY
 	});
 
 });

@@ -51,12 +51,18 @@ app.put('/encrypt', (req, res) => {
 						err
 					});
 				}
-				res.sendFile( rutaArchivo, (err)=>{
-					borrarArchivo( nombre );
+			
+				if( fs.existsSync( rutaArchivo ) ){
+					return res.sendFile( rutaArchivo, (err)=>{
+						borrarArchivo( nombre );
+					});
+				}
+
+				return res.json({
+					ok: true, 
+					encText: encData
 				});
 			});
-
-
 		}).catch( err => {
 			return res.status(500).json({
 				ok: false,
@@ -109,8 +115,15 @@ app.put('/decrypt', (req, res) => {
 						err
 					});
 				}
-				res.sendFile( rutaArchivo, (err)=>{
-					borrarArchivo( nombre );
+				if( fs.existsSync( rutaArchivo ) ){
+					return res.sendFile( rutaArchivo, (err)=>{
+						borrarArchivo( nombre );
+					});
+				}
+
+				return res.json({
+					ok: true, 
+					decText: decData
 				});
 			});
 		}).catch( err => {
