@@ -5,7 +5,7 @@ const app = express();
 const fs = require('fs');
 const path = require('path');
 
-const { encrypt, decrypt } = require('../helpers/cipher');
+const { cifrarRSA, decifrarRSA } = require('../helpers/rsa');
 
 // default options
 app.use(fileUpload());
@@ -23,7 +23,7 @@ app.post('/encrypt', (req, res)=>{
 		});
 	}
 
-	encrypt( text )
+	cifrarRSA( text )
 		.then( encData => {
 			res.json({
 				ok: true,
@@ -53,7 +53,7 @@ app.post('/decrypt', (req, res)=>{
 		});
 	}
 
-	decrypt( text )
+	decifrarRSA( text )
 		.then( decData => {
 			res.json({
 				ok: true,
